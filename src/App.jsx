@@ -4,67 +4,111 @@ import './App.css';
 const DATA = [
   {
     id: '1',
-    title: 'Jumping Frog',
+    title: 'Jumping Frog (DP)',
     emoji: '🐸',
     color: '#0f766e',
     complexity: 'O(n²)',
-    description:
-      'Choose the best stones to jump across using dynamic programming and reach the far bank with minimum jumps.',
-    concept:
-      'Count the number of ways to reach each stone by summing reachable predecessors.',
+    description: 'Count ways to reach each stone; reuse computed counts (memo).',
+    concept: 'DP: build counts left→right; memo prevents recomputation.',
     visual: ['1', '2', '3', '5', '8', '13'],
     animation: 'stones',
   },
   {
     id: '2',
-    title: 'Rat in a Maze',
+    title: 'Rat in a Maze (Backtrack)',
     emoji: '🧀',
     color: '#7c3aed',
-    complexity: 'O(2^(m×n))',
-    description:
-      'Explore every valid path and backtrack from dead ends until the exit is found.',
-    concept:
-      'Recursively traverse neighbors, mark visited cells, and undo paths when blocked.',
-    visual: ['S', '•', '•', '•', 'E'],
+    complexity: 'Exponential (worst)',
+    description: 'Explore paths, mark visited; undo (backtrack) on dead ends.',
+    concept: 'Backtracking: try, mark, recurse, unmark on return.',
+    visual: ['S', '1', '2', '3', 'E'],
     animation: 'maze',
-  },
-  {
-    id: '3',
-    title: 'Word Ladder',
-    emoji: '🔤',
-    color: '#dc2626',
-    complexity: 'O(N × L²)',
-    description:
-      'Transform the start word into the end word using valid intermediate dictionary words.',
-    concept:
-      'Build a graph where words are neighbors if they differ by one letter and search with BFS.',
-    visual: ['hit', 'hot', 'dot', 'dog', 'cog'],
-    animation: 'words',
   },
 ];
 
 const AnimatedIllustration = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [memo, setMemo] = useState([]);
+  const [visited, setVisited] = useState([]);
+
+  useEffect(() => {
+    // initialize states per item
+    if (item.animation === 'stones') {
+      // DP counts: start with 0s and set first stone as 1
+      setMemo(Array(item.visual.length).fill(0));
+      setVisited(Array(item.visual.length).fill(false));
+    } else if (item.animation === 'maze') {
+      setVisited(Array(item.visual.length).fill(false));
+    }
+  }, [item]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % item.visual.length);
-    }, 1800);
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % item.visual.length;
+
+        // update memo / visited in a concise simulation to demonstrate concept
+        if (item.animation === 'stones') {
+          setMemo((m) => {
+            const copy = [...m];
+            // compute count for next using previous counts (simple DP accumulation)
+            const start = Math.max(0, next - 2); // frog can jump up to 2 for demo
+            let sum = 0;
+            for (let i = start; i < next; i++) sum += copy[i] || (i === 0 ? 1 : 0);
+            // ensure first stone has 1
+            if (next === 0) copy[next] = 1;
+            else copy[next] = Math.max(1, sum);
+            return copy;
+          });
+          setVisited((v) => {
+            const copy = [...v];
+            copy[next] = true; // mark as computed/visited
+            return copy;
+          });
+        }
+
+        if (item.animation === 'maze') {
+          setVisited((v) => {
+            const copy = [...v];
+            // simulate exploration: mark forward visited and occasionally clear to show backtrack
+            copy[next] = true;
+            // if next is last, simulate backtrack by clearing earlier ones
+            if (next === item.visual.length - 1) {
+              for (let i = 1; i < copy.length - 1; i++) {
+                copy[i] = false;
+              }
+            }
+            return copy;
+          });
+        }
+
+        return next;
+      });
+    }, 900); // faster loop to fit 3-4s digestible animation
 
     return () => window.clearInterval(interval);
-  }, [item.visual.length]);
+  }, [item]);
 
   return (
     <div className={`illustration ${item.animation}`}>
       {item.visual.map((value, index) => {
         const isActive = index === activeIndex;
+        const isVisited = visited[index];
+        const count = memo[index];
 
         return (
           <div
             key={`${item.id}-${value}-${index}`}
-            className={`illustrationNode ${isActive ? 'active' : ''}`}
+            className={`illustrationNode ${isActive ? 'active' : ''} ${
+              isVisited ? 'visited' : ''
+            }`}
           >
-            <span>{value}</span>
+            <div>
+              <span>{value}</span>
+              {item.animation === 'stones' && (
+                <div className="nodeBadge">{count > 0 ? count : ''}</div>
+              )}
+            </div>
           </div>
         );
       })}
