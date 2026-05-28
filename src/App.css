@@ -1,31 +1,124 @@
-.App {
-  text-align: center;
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: #050814;
+  color: white;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.App-header {
-  background-color: #282c34;
+body {
+  overflow: hidden;
+}
+
+.pageWrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cardsList {
+  min-height: 100%;
+}
+
+.card {
+  width: 100vw;
   min-height: 100vh;
+  padding: 3rem 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  scroll-snap-align: start;
+  gap: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
+.emoji {
+  font-size: 4rem;
+  margin-bottom: 0.75rem;
 }
 
-.heart {
-  color: #ff0000;
+.title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0;
 }
 
-.small {
-  font-size: 0.75rem;
+.complexity {
+  font-size: 1.1rem;
+  color: #e5e7eb;
+  margin: 0.25rem 0 1.5rem;
+  font-weight: 600;
+}
+
+.description {
+  max-width: 38rem;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0 auto 2.5rem;
+}
+
+.visualContainer {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.box {
+  width: 55px;
+  height: 55px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  transition: transform 300ms ease, background-color 300ms ease, box-shadow 300ms ease;
+}
+
+.boxActive {
+  background: #fbbf24;
+  transform: scale(1.2);
+  box-shadow: 0 16px 32px rgba(251, 191, 36, 0.28);
+}
+
+.boxText {
+  color: #060b17;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.swipeText {
+  position: absolute;
+  bottom: 3rem;
+  color: #e5e7eb;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 2rem 1.25rem;
+  }
+
+  .visualContainer {
+    gap: 0.6rem;
+  }
+
+  .box {
+    width: 48px;
+    height: 48px;
+  }
+
+  .boxText {
+    font-size: 1rem;
+  }
 }
