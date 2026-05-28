@@ -3,46 +3,52 @@ import './App.css';
 
 const DATA = [
   {
-    id: '1',
-    title: 'Jumping Frog (DP)',
-    emoji: '🐸',
-    color: '#0f766e',
-    complexity: 'O(n²)',
-    description: 'Count ways to reach each stone; reuse computed counts (memo).',
-    concept: 'DP: build counts left→right; memo prevents recomputation.',
-    visual: ['1', '2', '3', '5', '8', '13'],
-    animation: 'stones',
-  },
-  {
-    id: '2',
-    title: 'Rat in a Maze (Backtrack)',
-    emoji: '🧀',
-    color: '#7c3aed',
-    complexity:
-      'Worst-case exponential when enumerating all paths; shortest-path can be found with BFS in O(m×n).',
-    problem:
-      'Given a grid with open and blocked cells, find a path from start to exit. The rat may move in four directions and must avoid revisiting useless paths.',
-    solution:
-      'Use backtracking to explore neighbors; mark visited cells to avoid cycles and memoize dead-ends so they are not re-explored (pruning). For shortest path use BFS.',
-    concept: 'Backtracking + memoization (prune dead-ends).',
-    visual: ['S', '1', '2', '3', 'E'],
-    animation: 'maze',
-  },
-  
-  {
-    id: '3',
-    title: 'Tree Traversal (Preorder)',
-    emoji: '🌳',
-    color: '#0369a1',
-    complexity: 'O(n)',
-    description: 'Visit root, then left, then right — visualize preorder traversal.',
-    concept: 'Preorder: process node, traverse left subtree, traverse right subtree.',
-    visual: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-    traversal: ['A', 'B', 'D', 'E', 'C', 'F', 'G'],
-    animation: 'tree',
-  },
-];
+    const DATA = [
+      {
+        id: '1',
+        title: 'Maze — DFS (Find a path)',
+        emoji: '🧭',
+        color: '#0ea5a4',
+        complexity: 'O(m×n) in practice for reachability',
+        problem:
+          'Given a grid with a start and target, use DFS to find any path to the target (not necessarily shortest).',
+        solution:
+          'DFS explores deeply along one branch before backtracking; it uses a visited set to avoid cycles. It’s good for reachability and path discovery.',
+        concept: 'Depth-first exploration, mark visited to avoid cycles.',
+        visual: ['S', '1', '2', '3', '4', 'E'],
+        animation: 'maze-dfs',
+      },
 
+      {
+        id: '2',
+        title: 'Maze — Backtracking / Enumeration',
+        emoji: '🔁',
+        color: '#7c3aed',
+        complexity: 'Exponential (enumerating all paths)',
+        problem:
+          'Find all valid paths from start to exit in a grid with blockers; enumerate solutions.',
+        solution:
+          'Backtracking tries moves, marks visited, recurses, and unmarks on return. Memoize dead-ends to prune repeated exploration.',
+        concept: 'Try → mark → recurse → unmark; memoize dead-ends to prune.',
+        visual: ['S', '1', '2', '3', '4', 'E'],
+        animation: 'maze-backtrack',
+      },
+
+      {
+        id: '3',
+        title: 'Maze — BFS (Shortest path)',
+        emoji: '📏',
+        color: '#fb923c',
+        complexity: 'O(m×n)',
+        problem:
+          'Find the minimum number of steps from start to exit where each step costs 1; grid may have blockers.',
+        solution:
+          'BFS explores level-by-level (wavefront); the first time you reach the target gives the shortest path. Use a queue and visited set.',
+        concept: 'Breadth-first search (level expansion), track distance per node.',
+        visual: ['S', '1', '2', '3', '4', 'E'],
+        animation: 'maze-bfs',
+      },
+    ];
 const AnimatedIllustration = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [memo, setMemo] = useState([]);
@@ -64,55 +70,50 @@ const AnimatedIllustration = ({ item }) => {
       setActiveIndex((prev) => {
         const next = (prev + 1) % item.visual.length;
 
-        // update memo / visited in a concise simulation to demonstrate concept
-        if (item.animation === 'stones') {
-          setMemo((m) => {
-            const copy = [...m];
-            // compute count for next using previous counts (simple DP accumulation)
-            const start = Math.max(0, next - 2); // frog can jump up to 2 for demo
-            let sum = 0;
-            for (let i = start; i < next; i++) sum += copy[i] || (i === 0 ? 1 : 0);
-            // ensure first stone has 1
-            if (next === 0) copy[next] = 1;
-            else copy[next] = Math.max(1, sum);
-            return copy;
-          });
+        // behavior per maze animation type
+        if (item.animation === 'maze-dfs') {
+          // DFS: mark current as visited (simulate depth), occasionally unmark to show backtrack
           setVisited((v) => {
-            const copy = [...v];
-            copy[next] = true; // mark as computed/visited
+            const copy = v.length ? [...v] : Array(item.visual.length).fill(false);
+            copy[next] = true;
+            // simulate backtrack: clear earlier nodes when reaching end
+            if (next === item.visual.length - 1) {
+              for (let i = 1; i < copy.length - 1; i++) copy[i] = false;
+            }
             return copy;
           });
         }
 
-        if (item.animation === 'maze') {
+        if (item.animation === 'maze-backtrack') {
+          // Backtracking: mark visited when exploring, and set memo (prune) when dead-end
           setVisited((v) => {
-            const copy = [...v];
-            // simulate exploration: mark forward visited
+            const copy = v.length ? [...v] : Array(item.visual.length).fill(false);
             copy[next] = true;
             return copy;
           });
 
-          // initialize memo for maze if missing
           setMemo((m) => {
-            if (!m || m.length === 0) return Array(item.visual.length).fill(false);
-            return m;
+            const copy = m && m.length ? [...m] : Array(item.visual.length).fill(false);
+            // when reaching exit, mark middle nodes as pruned to illustrate memoization
+            if (next === item.visual.length - 1) {
+              for (let i = 1; i < copy.length - 1; i++) copy[i] = true;
+            }
+            return copy;
           });
+        }
 
-          // if we've reached the exit, simulate backtrack and mark dead-ends as memoized (pruned)
-          if (next === item.visual.length - 1) {
-            setMemo((m) => {
-              const copy = m.length ? [...m] : Array(item.visual.length).fill(false);
-              for (let i = 1; i < copy.length - 1; i++) {
-                copy[i] = true; // mark as dead-end / pruned for demo
-              }
-              return copy;
-            });
-          }
+        if (item.animation === 'maze-bfs') {
+          // BFS: expand wavefront—mark all nodes up to 'next' as visited
+          setVisited((v) => {
+            const copy = v.length ? [...v] : Array(item.visual.length).fill(false);
+            for (let i = 0; i <= next; i++) copy[i] = true;
+            return copy;
+          });
         }
 
         return next;
       });
-    }, 900); // faster loop to fit 3-4s digestible animation
+    }, 700); // rapid steps so full cycle ~3-4s for 5-6 nodes
 
     return () => window.clearInterval(interval);
   }, [item]);
