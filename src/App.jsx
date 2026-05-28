@@ -3,9 +3,7 @@ import './App.css';
 
 const DATA = [
   {
-    const DATA = [
-      {
-        id: '1',
+    id: '1',
         title: 'Maze — DFS (Find a path)',
         emoji: '🧭',
         color: '#0ea5a4',
