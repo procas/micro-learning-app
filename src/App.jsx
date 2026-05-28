@@ -18,9 +18,13 @@ const DATA = [
     title: 'Rat in a Maze (Backtrack)',
     emoji: '🧀',
     color: '#7c3aed',
-    complexity: 'Exponential (worst)',
-    description: 'Explore paths, mark visited; undo (backtrack) on dead ends.',
-    concept: 'Backtracking: try, mark, recurse, unmark on return.',
+    complexity:
+      'Worst-case exponential when enumerating all paths; shortest-path can be found with BFS in O(m×n).',
+    problem:
+      'Given a grid with open and blocked cells, find a path from start to exit. The rat may move in four directions and must avoid revisiting useless paths.',
+    solution:
+      'Use backtracking to explore neighbors; mark visited cells to avoid cycles and memoize dead-ends so they are not re-explored (pruning). For shortest path use BFS.',
+    concept: 'Backtracking + memoization (prune dead-ends).',
     visual: ['S', '1', '2', '3', 'E'],
     animation: 'maze',
   },
@@ -83,16 +87,27 @@ const AnimatedIllustration = ({ item }) => {
         if (item.animation === 'maze') {
           setVisited((v) => {
             const copy = [...v];
-            // simulate exploration: mark forward visited and occasionally clear to show backtrack
+            // simulate exploration: mark forward visited
             copy[next] = true;
-            // if next is last, simulate backtrack by clearing earlier ones
-            if (next === item.visual.length - 1) {
-              for (let i = 1; i < copy.length - 1; i++) {
-                copy[i] = false;
-              }
-            }
             return copy;
           });
+
+          // initialize memo for maze if missing
+          setMemo((m) => {
+            if (!m || m.length === 0) return Array(item.visual.length).fill(false);
+            return m;
+          });
+
+          // if we've reached the exit, simulate backtrack and mark dead-ends as memoized (pruned)
+          if (next === item.visual.length - 1) {
+            setMemo((m) => {
+              const copy = m.length ? [...m] : Array(item.visual.length).fill(false);
+              for (let i = 1; i < copy.length - 1; i++) {
+                copy[i] = true; // mark as dead-end / pruned for demo
+              }
+              return copy;
+            });
+          }
         }
 
         return next;
@@ -140,6 +155,9 @@ const AnimatedIllustration = ({ item }) => {
                 <span>{value}</span>
                 {item.animation === 'stones' && (
                   <div className="nodeBadge">{count > 0 ? count : ''}</div>
+                )}
+                {item.animation === 'maze' && memo[index] && (
+                  <div className="memoBadge">×</div>
                 )}
               </div>
             </div>
