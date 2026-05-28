@@ -107,6 +107,9 @@ const AnimatedIllustration = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [memo, setMemo] = useState([]);
   const [visited, setVisited] = useState([]);
+  const [distances, setDistances] = useState([]);
+  const [overlayLabel, setOverlayLabel] = useState('');
+  const [path, setPath] = useState([]);
 
   useEffect(() => {
     // initialize states per item
@@ -116,6 +119,8 @@ const AnimatedIllustration = ({ item }) => {
       setVisited(Array(item.visual.length).fill(false));
     } else if (item.animation && item.animation.startsWith('maze')) {
       setVisited(Array(item.visual.length).fill(false));
+      setDistances(Array(item.visual.length).fill(null));
+      setPath([]);
     }
   }, [item]);
 
@@ -130,10 +135,16 @@ const AnimatedIllustration = ({ item }) => {
           setVisited((v) => {
             const copy = v.length ? [...v] : Array(item.visual.length).fill(false);
             copy[next] = true;
-            // simulate backtrack: clear earlier nodes when reaching end
-            if (next === item.visual.length - 1) {
-              for (let i = 1; i < copy.length - 1; i++) copy[i] = false;
-            }
+            return copy;
+          });
+
+          // maintain a simple path stack: add next, and if at end clear to simulate found path
+          setPath((p) => {
+            const copy = p && p.length ? [...p] : [];
+            copy.push(next);
+            if (next === item.visual.length - 1) return copy;
+            // keep path short for animation
+            if (copy.length > 4) copy.shift();
             return copy;
           });
         }
@@ -144,6 +155,12 @@ const AnimatedIllustration = ({ item }) => {
             const copy = v.length ? [...v] : Array(item.visual.length).fill(false);
             copy[next] = true;
             return copy;
+          });
+          // cycle overlay labels to explain backtracking phases
+          setOverlayLabel((lbl) => {
+            const phases = ['Try', 'Mark', 'Recurse', 'Unmark'];
+            const idx = (next + phases.length) % phases.length;
+            return phases[idx];
           });
 
           setMemo((m) => {
@@ -163,6 +180,34 @@ const AnimatedIllustration = ({ item }) => {
             for (let i = 0; i <= next; i++) copy[i] = true;
             return copy;
           });
+
+          // set simple distances equal to index for illustrative purposes
+          setDistances((d) => {
+            const copy = d && d.length ? [...d] : Array(item.visual.length).fill(null);
+            for (let i = 0; i <= next; i++) copy[i] = i === 0 ? 0 : i;
+            return copy;
+          });
+        }
+
+        if (item.animation === 'stones') {
+          // accumulate simple DP counts for stones/climbing stairs
+          setMemo((m) => {
+            const copy = m && m.length ? [...m] : Array(item.visual.length).fill(0);
+            // seed start
+            if (copy[0] === 0) copy[0] = 1;
+            // compute next as sum of previous two (simple illustrative rule)
+            const i = next;
+            const left = copy[i - 1] || 0;
+            const left2 = copy[i - 2] || 0;
+            copy[i] = left + left2 || copy[i] || 1;
+            return copy;
+          });
+        }
+
+        if (item.animation === 'tree') {
+          // brief overlay indicating swap at active node
+          setOverlayLabel('Swap');
+          setTimeout(() => setOverlayLabel(''), 350);
         }
 
         return next;
@@ -198,13 +243,15 @@ const AnimatedIllustration = ({ item }) => {
           const isActive = index === activeIndex;
           const isVisited = visited[index];
           const count = memo[index];
+          const dist = distances[index];
+          const inPath = path.includes(index);
 
           return (
             <div
               key={`${item.id}-${value}-${index}`}
               className={`illustrationNode ${isActive ? 'active' : ''} ${
                 isVisited ? 'visited' : ''
-              }`}
+              } ${inPath ? 'path' : ''}`}
             >
               <div>
                 <span>{value}</span>
@@ -214,10 +261,20 @@ const AnimatedIllustration = ({ item }) => {
                 {item.animation && item.animation.startsWith('maze') && memo[index] && (
                   <div className="memoBadge">×</div>
                 )}
+                {item.animation === 'maze-bfs' && dist != null && (
+                  <div className="distanceBadge">{dist}</div>
+                )}
+                {item.animation === 'tree' && overlayLabel && isActive && (
+                  <div className="swapBadge">{overlayLabel}</div>
+                )}
               </div>
             </div>
           );
         })
+      )}
+      {/* explanatory overlay for backtracking */}
+      {item.animation === 'maze-backtrack' && overlayLabel && (
+        <div className="overlayLabel">{overlayLabel}</div>
       )}
       <div className="illustrationTrail" />
     </div>
