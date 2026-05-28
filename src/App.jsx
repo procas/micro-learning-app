@@ -4,64 +4,92 @@ import './App.css';
 const DATA = [
   {
     id: '1',
-    title: 'Binary Search',
-    emoji: '🔍',
-    color: '#1E3A8A',
-    complexity: 'O(log n)',
-    description: 'Repeatedly divide the search space into halves.',
-    visual: ['1', '3', '5', '7', '9'],
+    title: 'Jumping Frog',
+    emoji: '🐸',
+    color: '#0f766e',
+    complexity: 'O(n²)',
+    description:
+      'Choose the best stones to jump across using dynamic programming and reach the far bank with minimum jumps.',
+    concept:
+      'Count the number of ways to reach each stone by summing reachable predecessors.',
+    visual: ['1', '2', '3', '5', '8', '13'],
+    animation: 'stones',
   },
   {
     id: '2',
-    title: 'Sliding Window',
-    emoji: '🪟',
-    color: '#065F46',
-    complexity: 'O(n)',
-    description: 'Maintain a moving range to optimize subarray problems.',
-    visual: ['2', '4', '6', '8'],
+    title: 'Rat in a Maze',
+    emoji: '🧀',
+    color: '#7c3aed',
+    complexity: 'O(2^(m×n))',
+    description:
+      'Explore every valid path and backtrack from dead ends until the exit is found.',
+    concept:
+      'Recursively traverse neighbors, mark visited cells, and undo paths when blocked.',
+    visual: ['S', '•', '•', '•', 'E'],
+    animation: 'maze',
+  },
+  {
+    id: '3',
+    title: 'Word Ladder',
+    emoji: '🔤',
+    color: '#dc2626',
+    complexity: 'O(N × L²)',
+    description:
+      'Transform the start word into the end word using valid intermediate dictionary words.',
+    concept:
+      'Build a graph where words are neighbors if they differ by one letter and search with BFS.',
+    visual: ['hit', 'hot', 'dot', 'dog', 'cog'],
+    animation: 'words',
   },
 ];
 
-const AnimatedBoxes = ({ visual }) => {
+const AnimatedIllustration = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % visual.length);
-    }, 2000);
+      setActiveIndex((prev) => (prev + 1) % item.visual.length);
+    }, 1800);
 
     return () => window.clearInterval(interval);
-  }, [visual.length]);
+  }, [item.visual.length]);
 
   return (
-    <div className="visualContainer">
-      {visual.map((value, index) => {
+    <div className={`illustration ${item.animation}`}>
+      {item.visual.map((value, index) => {
         const isActive = index === activeIndex;
 
         return (
           <div
-            key={index}
-            className={`box ${isActive ? 'boxActive' : ''}`}
+            key={`${item.id}-${value}-${index}`}
+            className={`illustrationNode ${isActive ? 'active' : ''}`}
           >
-            <span className="boxText">{value}</span>
+            <span>{value}</span>
           </div>
         );
       })}
+      <div className="illustrationTrail" />
     </div>
   );
 };
 
 const Card = ({ item }) => {
   return (
-    <section
-      className="card"
-      style={{ backgroundColor: item.color }}
-    >
-      <span className="emoji">{item.emoji}</span>
-      <h1 className="title">{item.title}</h1>
-      <p className="complexity">{item.complexity}</p>
+    <section className="card" style={{ backgroundColor: item.color }}>
+      <div className="cardHeader">
+        <span className="emoji">{item.emoji}</span>
+        <div>
+          <h1 className="title">{item.title}</h1>
+          <p className="complexity">{item.complexity}</p>
+        </div>
+      </div>
+
       <p className="description">{item.description}</p>
-      <AnimatedBoxes visual={item.visual} />
+      <p className="concept">
+        Key concept: <strong>{item.concept}</strong>
+      </p>
+
+      <AnimatedIllustration item={item} />
       <p className="swipeText">Swipe Up ↑</p>
     </section>
   );
