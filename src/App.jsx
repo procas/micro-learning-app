@@ -58,6 +58,50 @@ const DATA = [
       },
     ],
   },
+  {
+    id: 'frog-jump',
+    title: 'Jumping Frog (DP)',
+    emoji: '🐸',
+    color: '#10b981',
+    complexity: 'O(n) with memoization',
+    problem:
+      'Count the number of ways a frog can reach the end given stones and allowed jumps.',
+    solution:
+      'Dynamic programming: ways[i] = sum(ways[j]) for reachable previous stones j. Memoize counts to avoid recomputation.',
+    concept: 'DP accumulation, memoize subproblems into counts.',
+    visual: ['S', '1', '2', '3', '4', 'E'],
+    animation: 'stones',
+  },
+
+  {
+    id: 'climbing-stairs',
+    title: 'Climbing Stairs (DP)',
+    emoji: '🪜',
+    color: '#f97316',
+    complexity: 'O(n)',
+    problem: 'Given n steps, count distinct ways to climb (1 or 2 steps).',
+    solution:
+      'Classic DP: ways[i] = ways[i-1] + ways[i-2]. Start with base cases and build up.',
+    concept: 'Linear DP recurrence, cumulative counts.',
+    visual: ['0', '1', '2', '3', '4', '5'],
+    animation: 'stones',
+  },
+
+  {
+    id: 'invert-tree',
+    title: 'Binary Tree — Invert',
+    emoji: '🌳',
+    color: '#60a5fa',
+    complexity: 'O(n)',
+    problem:
+      'Invert a binary tree (swap left/right children for every node).',
+    solution:
+      'Traverse the tree (preorder) and swap children at each node. Iterative or recursive works.',
+    concept: 'Tree traversal (visit & mutate), preorder swap.',
+    visual: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+    traversal: ['A', 'B', 'D', 'E', 'C', 'F', 'G'],
+    animation: 'tree',
+  },
 ];
 const AnimatedIllustration = ({ item }) => {
   const [activeIndex, setActiveIndex] = useState(0);
