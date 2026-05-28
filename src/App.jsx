@@ -24,6 +24,19 @@ const DATA = [
     visual: ['S', '1', '2', '3', 'E'],
     animation: 'maze',
   },
+  
+  {
+    id: '3',
+    title: 'Tree Traversal (Preorder)',
+    emoji: '🌳',
+    color: '#0369a1',
+    complexity: 'O(n)',
+    description: 'Visit root, then left, then right — visualize preorder traversal.',
+    concept: 'Preorder: process node, traverse left subtree, traverse right subtree.',
+    visual: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+    traversal: ['A', 'B', 'D', 'E', 'C', 'F', 'G'],
+    animation: 'tree',
+  },
 ];
 
 const AnimatedIllustration = ({ item }) => {
@@ -91,27 +104,48 @@ const AnimatedIllustration = ({ item }) => {
 
   return (
     <div className={`illustration ${item.animation}`}>
-      {item.visual.map((value, index) => {
-        const isActive = index === activeIndex;
-        const isVisited = visited[index];
-        const count = memo[index];
+      {item.animation === 'tree' ? (
+        <div className="treeLayout">
+          {item.visual.map((value, index) => {
+            const posOrder = [4, 2, 6, 1, 3, 5, 7];
+            const isActive = item.traversal
+              ? item.traversal[activeIndex] === value
+              : index === activeIndex;
 
-        return (
-          <div
-            key={`${item.id}-${value}-${index}`}
-            className={`illustrationNode ${isActive ? 'active' : ''} ${
-              isVisited ? 'visited' : ''
-            }`}
-          >
-            <div>
-              <span>{value}</span>
-              {item.animation === 'stones' && (
-                <div className="nodeBadge">{count > 0 ? count : ''}</div>
-              )}
+            return (
+              <div
+                key={`${item.id}-${value}-${index}`}
+                className={`illustrationNode ${isActive ? 'active' : ''}`}
+                style={{ gridColumn: posOrder[index] }}
+              >
+                <span>{value}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        item.visual.map((value, index) => {
+          const isActive = index === activeIndex;
+          const isVisited = visited[index];
+          const count = memo[index];
+
+          return (
+            <div
+              key={`${item.id}-${value}-${index}`}
+              className={`illustrationNode ${isActive ? 'active' : ''} ${
+                isVisited ? 'visited' : ''
+              }`}
+            >
+              <div>
+                <span>{value}</span>
+                {item.animation === 'stones' && (
+                  <div className="nodeBadge">{count > 0 ? count : ''}</div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
       <div className="illustrationTrail" />
     </div>
   );

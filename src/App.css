@@ -183,6 +183,19 @@ body {
   padding: 0.8rem 1rem;
 }
 
+.illustration.tree .treeLayout {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 0.5rem 0.5rem 1rem 0.5rem;
+  align-items: center;
+}
+
+.illustration.tree .illustrationNode {
+  justify-self: center;
+}
+
 .illustration.maze .illustrationNode {
   width: 58px;
   height: 58px;
